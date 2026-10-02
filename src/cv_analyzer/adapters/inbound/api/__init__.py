@@ -1,0 +1,3 @@
+"""
+API inbound adapters.
+"""
