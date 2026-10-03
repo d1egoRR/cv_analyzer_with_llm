@@ -14,11 +14,11 @@ REGLAS DE EVALUACIÓN:
 CV_EVALUATION_HUMAN_TEMPLATE = """Analiza la idoneidad del candidato para el puesto y completa todos los campos del reporte de evaluación.
 
 <job_description>
-{descripcion_puesto}
+{job_description}
 </job_description>
 
 <candidate_cv>
-{texto_cv}
+{cv_text}
 </candidate_cv>
 
 GUÍA PARA EVALUAR CADA CAMPO:

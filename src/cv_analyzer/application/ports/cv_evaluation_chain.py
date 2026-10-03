@@ -6,8 +6,11 @@ from typing import Any, Protocol
 class CVEvaluationChainPort(Protocol):
     """Port interface for creating CV evaluation LCEL chains."""
 
-    def create_chain(self) -> Any:
+    def create_chain(self, prompt_template: Any | None = None) -> Any:
         """Construct and return the LCEL evaluation chain (Runnable).
+
+        Args:
+            prompt_template: Optional prompt template to override default prompt.
 
         Returns:
             Constructed Runnable chain.

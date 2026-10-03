@@ -29,8 +29,8 @@ def test_generate_cv_analysis_prompt_default_content_formatting() -> None:
     cv_text = "Experienced Developer with 6 years in Python"
 
     messages = chat_prompt.format_messages(
-        descripcion_puesto=job_desc,
-        texto_cv=cv_text,
+        job_description=job_desc,
+        cv_text=cv_text,
     )
 
     assert len(messages) == 2

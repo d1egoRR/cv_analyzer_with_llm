@@ -28,12 +28,38 @@ def test_evaluate_delegates_to_chain_provider() -> None:
         cv_text="5 years of Python experience",
     )
 
-    mock_chain_provider.create_chain.assert_called_once()
+    mock_chain_provider.create_chain.assert_called_once_with(
+        prompt_template=None
+    )
     mock_chain.invoke.assert_called_once_with(
         {
-            "descripcion_puesto": "Senior Python Developer",
-            "texto_cv": "5 years of Python experience",
+            "job_description": "Senior Python Developer",
+            "cv_text": "5 years of Python experience",
         }
+    )
+    assert result == expected_result
+
+
+def test_evaluate_passes_prompt_template_to_chain_provider() -> None:
+    """Test that evaluate passes custom prompt_template to create_chain."""
+    expected_result = MagicMock(spec=CVAnalysisResult)
+    mock_chain = MagicMock()
+    mock_chain.invoke.return_value = expected_result
+
+    mock_chain_provider = MagicMock(spec=CVEvaluationChainPort)
+    mock_chain_provider.create_chain.return_value = mock_chain
+
+    mock_prompt_template = MagicMock()
+    service = CVEvaluatorService(chain_provider=mock_chain_provider)
+
+    result = service.evaluate(
+        job_description="Senior Python Developer",
+        cv_text="5 years of Python experience",
+        prompt_template=mock_prompt_template,
+    )
+
+    mock_chain_provider.create_chain.assert_called_once_with(
+        prompt_template=mock_prompt_template
     )
     assert result == expected_result
 

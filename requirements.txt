@@ -25,3 +25,4 @@ uvicorn==0.39.0
 pypdf>=5.0.0
 langchain-core
 langchain-openai
+python-multipart>=0.0.18
