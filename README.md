@@ -53,6 +53,28 @@ FastAPI application built with Python using Hexagonal Architecture (Ports and Ad
     }
     ```
 
+### CV Analysis
+
+- **POST `/cv/analyze`**
+  - **Summary**: Analyzes a candidate CV in PDF format against a job description.
+  - **Content-Type**: `multipart/form-data`
+  - **Parameters**:
+    - `job_description` (Form text): Detailed job requirements and responsibilities.
+    - `cv_file` (PDF file): Candidate CV document (processed in-memory, not stored on disk).
+  - **Response (200 OK)**:
+    ```json
+    {
+      "candidate_name": "Jane Doe",
+      "years_of_experience": 5.0,
+      "key_skills": ["Python", "FastAPI", "Docker", "LangChain"],
+      "education": "B.S. in Computer Science - Tech University",
+      "relevant_experience": "5 years designing scalable backend APIs...",
+      "strengths": ["Deep FastAPI expertise", "Clean hexagonal architecture design"],
+      "areas_for_improvement": ["Needs validation on Kubernetes cluster management"],
+      "match_percentage": 88
+    }
+    ```
+
 ## API Documentation
 
 Once the application is running, access the API documentation at:

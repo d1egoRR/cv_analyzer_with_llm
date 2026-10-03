@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from cv_analyzer.application.ports.cv_evaluation_chain import (
     CVEvaluationChainPort,
 )
@@ -18,12 +20,18 @@ class CVEvaluatorService:
         """
         self._chain_provider = chain_provider
 
-    def evaluate(self, job_description: str, cv_text: str) -> CVAnalysisResult:
+    def evaluate(
+        self,
+        job_description: str,
+        cv_text: str,
+        prompt_template: Any | None = None,
+    ) -> CVAnalysisResult:
         """Evaluate CV text against job description by invoking the LCEL chain.
 
         Args:
             job_description: Target job requirements text string.
             cv_text: Candidate CV text string (already extracted).
+            prompt_template: Optional prompt template override for the chain.
 
         Returns:
             CVAnalysisResult containing structured evaluation metrics.
@@ -32,7 +40,9 @@ class CVEvaluatorService:
             CVEvaluationError: If chain creation or invocation fails.
         """
         try:
-            chain = self._chain_provider.create_chain()
+            chain = self._chain_provider.create_chain(
+                prompt_template=prompt_template
+            )
             result: CVAnalysisResult = chain.invoke(
                 {
                     "job_description": job_description,

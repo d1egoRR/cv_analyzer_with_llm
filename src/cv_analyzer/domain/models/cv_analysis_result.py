@@ -7,38 +7,38 @@ class CVAnalysisResult(BaseModel):
     """Structured data model for CV job fit evaluation result."""
 
     candidate_name: str = Field(
-        description="Nombre completo del candidato extraído del CV. Si no figura, usar 'No especificado'"
+        description="Full name of the candidate extracted from the CV. If not present, use 'Not specified'"
     )
 
     years_of_experience: float = Field(
-        description="Años de experiencia laboral relevante demostrada (usar 0.0 si no cuenta o no se puede determinar)",
+        description="Demonstrated relevant work experience in years (use 0.0 if none or undetermined)",
         ge=0.0,
     )
 
     key_skills: list[str] = Field(
-        description="Lista de 5 a 7 habilidades técnicas y funcionales más relevantes para la vacante"
+        description="List of 5 to 7 key technical and functional skills most relevant to the vacancy"
     )
 
     education: str = Field(
-        description="Máximo nivel alcanzado, título o especialización principal e institución si figura"
+        description="Highest education level achieved, major/degree, and institution if available"
     )
 
     relevant_experience: str = Field(
-        description="Resumen conciso (máximo 3-4 líneas) del recorrido laboral más aplicable a este puesto"
+        description="Concise summary (maximum 3-4 lines) of the work trajectory most applicable to this position"
     )
 
     strengths: list[str] = Field(
-        description="3 a 5 fortalezas principales que lo hacen competitivo para la vacante"
+        description="3 to 5 key candidate strengths that make them competitive for the vacancy"
     )
 
     areas_for_improvement: list[str] = Field(
-        description="2 a 4 brechas, requisitos no demostrados o aspectos a validar en entrevista"
+        description="2 to 4 gaps, unproven requirements, or areas to validate in an interview"
     )
 
     match_percentage: int = Field(
         description=(
-            "Ajuste global estimado de 0 a 100 aplicando mentalmente: "
-            "Experiencia (40%), Habilidades técnicas (35%), Formación/Certificaciones (15%) y Coherencia (10%)"
+            "Estimated overall fit from 0 to 100 weighting: "
+            "Experience (40%), Technical Skills (35%), Education/Certifications (15%), and Coherence (10%)"
         ),
         ge=0,
         le=100,
