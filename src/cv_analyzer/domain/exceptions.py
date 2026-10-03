@@ -8,3 +8,9 @@ class EmptyPDFError(PDFExtractionError):
     """Raised when the PDF file contains no extractable text."""
 
     pass
+
+
+class CVEvaluationError(Exception):
+    """Raised when CV evaluation via LLM fails."""
+
+    pass
