@@ -35,8 +35,8 @@ class CVEvaluatorService:
             chain = self._chain_provider.create_chain()
             result: CVAnalysisResult = chain.invoke(
                 {
-                    "descripcion_puesto": job_description,
-                    "texto_cv": cv_text,
+                    "job_description": job_description,
+                    "cv_text": cv_text,
                 }
             )
         except Exception as exc:
