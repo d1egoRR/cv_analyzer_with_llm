@@ -61,7 +61,8 @@ class _FallbackChainRunner:
                     prompt_template=self._prompt_template
                 )
                 result: CVAnalysisResult = chain.invoke(
-                    input_data, config=config
+                    input_data,
+                    config=config,
                 )
                 logger.info(
                     f"CV evaluation succeeded using provider '{provider_id}'"
