@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 from cv_analyzer.adapters.outbound.llm.exceptions import LLMProviderError
 from cv_analyzer.application.ports.cv_evaluation_chain import (
@@ -16,44 +16,39 @@ from cv_analyzer.domain.models.cv_analysis_result import CVAnalysisResult
 from cv_analyzer.infrastructure.config import get_llm_settings
 
 
-class OpenAICVEvaluationChainAdapter(CVEvaluationChainPort):
-    """Outbound adapter responsible for creating LCEL chains using ChatOpenAI or compatible endpoints."""
+class GeminiCVEvaluationChainAdapter(CVEvaluationChainPort):
+    """Outbound adapter responsible for creating LCEL chains using Google Gemini."""
+
+    PROVIDER_NAME = "gemini"
 
     def __init__(
         self,
         prompt_generator: PromptGeneratorPort,
         model_name: str | None = None,
         api_key: str | None = None,
-        base_url: str | None = None,
         timeout: float | None = None,
-        provider_name: str = "openai",
     ) -> None:
-        """Initialize OpenAICVEvaluationChainAdapter.
+        """Initialize GeminiCVEvaluationChainAdapter.
 
         Args:
             prompt_generator: Injected port for generating prompt templates.
-            model_name: Model identifier (e.g. 'gpt-4o-mini', 'llama-3.3-70b-versatile').
-            api_key: API key for the endpoint.
-            base_url: Optional custom base URL for OpenAI-compatible providers.
+            model_name: Optional override for Gemini model.
+            api_key: Optional override for Google Gemini API key.
             timeout: Optional request timeout in seconds.
-            provider_name: Identifier for error reporting and cooldown tracking.
         """
         settings = get_llm_settings()
         self._prompt_generator = prompt_generator
-        self._provider_name = provider_name
-        self._model_name = model_name or settings.openai_model_name
+        self._model_name = model_name or settings.gemini_model_name
         self._api_key = (
-            settings.openai_api_key if api_key is None else api_key
+            settings.gemini_api_key if api_key is None else api_key
         )
-        self._base_url = base_url
-        self._temperature = settings.openai_temperature
         self._timeout = timeout or settings.timeout_seconds
 
     def create_chain(
         self,
         prompt_template: ChatPromptTemplate | None = None,
     ) -> Any:
-        """Construct ChatOpenAI, bind structured output, and return LCEL chain.
+        """Construct ChatGoogleGenerativeAI, bind structured output, and return LCEL chain.
 
         Args:
             prompt_template: Optional custom ChatPromptTemplate.
@@ -63,12 +58,12 @@ class OpenAICVEvaluationChainAdapter(CVEvaluationChainPort):
             Constructed Runnable chain returning CVAnalysisResult.
 
         Raises:
-            LLMProviderError: If API key is not configured.
+            LLMProviderError: If credentials, dependencies, or parameters fail.
         """
         if not self._api_key or not self._api_key.strip():
             raise LLMProviderError(
-                self._provider_name,
-                f"API key for provider '{self._provider_name}' is not configured.",
+                self.PROVIDER_NAME,
+                "GEMINI_API_KEY is not configured. Please set it in .env.",
             )
 
         prompt = (
@@ -76,16 +71,13 @@ class OpenAICVEvaluationChainAdapter(CVEvaluationChainPort):
             or self._prompt_generator.generate_cv_analysis_prompt()
         )
 
-        llm_kwargs: dict[str, Any] = {
-            "model": self._model_name,
-            "temperature": self._temperature,
-            "api_key": self._api_key,
-            "timeout": self._timeout,
-            "max_retries": 0,
-        }
-        if self._base_url:
-            llm_kwargs["base_url"] = self._base_url
+        llm = ChatGoogleGenerativeAI(
+            model=self._model_name,
+            google_api_key=self._api_key,
+            temperature=0.0,
+            timeout=self._timeout,
+            max_retries=0,
+        )
 
-        llm = ChatOpenAI(**llm_kwargs)
         structured_llm = llm.with_structured_output(CVAnalysisResult)
         return prompt | structured_llm
