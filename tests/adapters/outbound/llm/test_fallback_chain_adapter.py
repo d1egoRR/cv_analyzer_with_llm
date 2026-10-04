@@ -15,7 +15,7 @@ from cv_analyzer.application.ports.cv_evaluation_chain import (
 from cv_analyzer.domain.models.cv_analysis_result import CVAnalysisResult
 
 
-def _create_sample_result() -> CVAnalysisResult:
+def _create_sample_result(provider: str = "", model: str = "") -> CVAnalysisResult:
     return CVAnalysisResult(
         candidate_name="Alice Smith",
         years_of_experience=4.0,
@@ -25,20 +25,26 @@ def _create_sample_result() -> CVAnalysisResult:
         strengths=["FastAPI", "Clean Code"],
         areas_for_improvement=["Cloud infrastructure"],
         match_percentage=85,
+        provider=provider,
+        model=model,
     )
 
 
 def test_fallback_succeeds_on_first_provider() -> None:
     """Test that primary provider is used when it succeeds, without calling secondary."""
-    expected_result = _create_sample_result()
+    sample_result = _create_sample_result()
 
     mock_chain_1 = MagicMock()
-    mock_chain_1.invoke.return_value = expected_result
+    mock_chain_1.invoke.return_value = sample_result
     mock_adapter_1 = MagicMock(spec=CVEvaluationChainPort)
+    mock_adapter_1.provider_name = "gemini"
+    mock_adapter_1.model_name = "gemini-3.8-flash"
     mock_adapter_1.create_chain.return_value = mock_chain_1
 
     mock_chain_2 = MagicMock()
     mock_adapter_2 = MagicMock(spec=CVEvaluationChainPort)
+    mock_adapter_2.provider_name = "openai"
+    mock_adapter_2.model_name = "gpt-4o-mini"
     mock_adapter_2.create_chain.return_value = mock_chain_2
 
     fallback_adapter = FallbackCVEvaluationChainAdapter(
@@ -56,7 +62,9 @@ def test_fallback_succeeds_on_first_provider() -> None:
         }
     )
 
-    assert result == expected_result
+    assert result.candidate_name == sample_result.candidate_name
+    assert result.provider == "gemini"
+    assert result.model == "gemini-3.8-flash"
 
     mock_adapter_1.create_chain.assert_called_once()
     mock_chain_1.invoke.assert_called_once()
@@ -68,16 +76,20 @@ def test_fallback_succeeds_on_first_provider() -> None:
 
 def test_fallback_switches_to_second_provider_when_first_fails() -> None:
     """Test that when primary provider fails, the runner immediately switches to secondary."""
-    expected_result = _create_sample_result()
+    sample_result = _create_sample_result()
 
     mock_chain_1 = MagicMock()
     mock_chain_1.invoke.side_effect = LLMProviderError("gemini", "Rate limit 429")
     mock_adapter_1 = MagicMock(spec=CVEvaluationChainPort)
+    mock_adapter_1.provider_name = "gemini"
+    mock_adapter_1.model_name = "gemini-3.8-flash"
     mock_adapter_1.create_chain.return_value = mock_chain_1
 
     mock_chain_2 = MagicMock()
-    mock_chain_2.invoke.return_value = expected_result
+    mock_chain_2.invoke.return_value = sample_result
     mock_adapter_2 = MagicMock(spec=CVEvaluationChainPort)
+    mock_adapter_2.provider_name = "openai"
+    mock_adapter_2.model_name = "gpt-4o-mini"
     mock_adapter_2.create_chain.return_value = mock_chain_2
 
     fallback_adapter = FallbackCVEvaluationChainAdapter(
@@ -93,7 +105,9 @@ def test_fallback_switches_to_second_provider_when_first_fails() -> None:
         "cv_text": "CV text",
     })
 
-    assert result == expected_result
+    assert result.candidate_name == sample_result.candidate_name
+    assert result.provider == "openai"
+    assert result.model == "gpt-4o-mini"
 
     mock_chain_1.invoke.assert_called_once()
     mock_chain_2.invoke.assert_called_once()
@@ -151,20 +165,24 @@ def test_fallback_empty_providers_raises_error() -> None:
 
 def test_fallback_is_stateless_across_calls() -> None:
     """Test that fallback does not block or suppress providers on subsequent calls."""
-    expected_result = _create_sample_result()
+    sample_result = _create_sample_result()
 
     mock_chain_1 = MagicMock()
     # Call 1 fails on provider 1; Call 2 succeeds on provider 1
     mock_chain_1.invoke.side_effect = [
         RuntimeError("Temporary glitch"),
-        expected_result,
+        sample_result,
     ]
     mock_adapter_1 = MagicMock(spec=CVEvaluationChainPort)
+    mock_adapter_1.provider_name = "gemini"
+    mock_adapter_1.model_name = "gemini-3.8-flash"
     mock_adapter_1.create_chain.return_value = mock_chain_1
 
     mock_chain_2 = MagicMock()
-    mock_chain_2.invoke.return_value = expected_result
+    mock_chain_2.invoke.return_value = sample_result
     mock_adapter_2 = MagicMock(spec=CVEvaluationChainPort)
+    mock_adapter_2.provider_name = "openai"
+    mock_adapter_2.model_name = "gpt-4o-mini"
     mock_adapter_2.create_chain.return_value = mock_chain_2
 
     fallback_adapter = FallbackCVEvaluationChainAdapter(
@@ -181,7 +199,9 @@ def test_fallback_is_stateless_across_calls() -> None:
             "cv_text": "CV text",
         }
     )
-    assert res1 == expected_result
+    assert res1.candidate_name == sample_result.candidate_name
+    assert res1.provider == "openai"
+    assert res1.model == "gpt-4o-mini"
     mock_chain_1.invoke.assert_called_once()
     mock_chain_2.invoke.assert_called_once()
 
@@ -192,7 +212,9 @@ def test_fallback_is_stateless_across_calls() -> None:
             "cv_text": "CV text",
         }
     )
-    assert res2 == expected_result
+    assert res2.candidate_name == sample_result.candidate_name
+    assert res2.provider == "gemini"
+    assert res2.model == "gemini-3.8-flash"
     assert mock_chain_1.invoke.call_count == 2
     # mock_chain_2 was NOT called on second invocation
     assert mock_chain_2.invoke.call_count == 1

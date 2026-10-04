@@ -4,41 +4,52 @@ FastAPI application built with Python using Hexagonal Architecture (Ports and Ad
 
 ## Requirements
 
-- Python 3.9+
+- Docker and Docker Compose (v2+)
 
-## Step-by-Step Setup
+## Running with Docker
 
-1. **Create and Activate Virtual Environment**
+1. **Configure Environment Variables**
 
-   On Windows (PowerShell):
-   ```powershell
-   python -m venv ..\venv
-   ..\venv\Scripts\activate
-   ```
-
-   On Linux / macOS:
+   Copy `.env.template` to `.env` and fill in your API keys (e.g. `GEMINI_API_KEY`):
    ```bash
-   python3 -m venv ../venv
-   source ../venv/bin/activate
+   cp .env.template .env
    ```
 
-2. **Install Dependencies**
+2. **Start the Application**
 
-   ```powershell
-   pip install -r requirements.txt
+   - **Standard Mode**:
+     ```bash
+     docker compose up -d
+     ```
+   - **Development Mode (with Live Reload)**:
+     ```bash
+     docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+     ```
+
+3. **Run Tests inside Container**
+
+   Execute the pytest suite inside the isolated container without needing any host Python setup:
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.dev.yml run --rm cv-analyzer pytest
    ```
 
-3. **Run the Application**
+4. **Stop the Application**
 
-   ```powershell
-   uvicorn cv_analyzer.main:app --reload --app-dir src
+   ```bash
+   docker compose down
    ```
 
-4. **Run Tests**
+### Standalone Docker
 
-   ```powershell
-   pytest
-   ```
+- **Build image**:
+  ```bash
+  docker build -t cv-analyzer:latest .
+  ```
+
+- **Run container**:
+  ```bash
+  docker run -d --name cv_analyzer_api -p 8000:8000 --env-file .env cv-analyzer:latest
+  ```
 
 ## Available Endpoints
 
@@ -71,7 +82,9 @@ FastAPI application built with Python using Hexagonal Architecture (Ports and Ad
       "relevant_experience": "5 years designing scalable backend APIs...",
       "strengths": ["Deep FastAPI expertise", "Clean hexagonal architecture design"],
       "areas_for_improvement": ["Needs validation on Kubernetes cluster management"],
-      "match_percentage": 88
+      "match_percentage": 88,
+      "provider": "gemini",
+      "model": "gemini-3.8-flash"
     }
     ```
 

@@ -1,0 +1,8 @@
+services:
+  cv-analyzer:
+    volumes:
+      - ./src:/app/src:ro
+      - ./tests:/app/tests:ro
+    command: ["uvicorn", "cv_analyzer.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    environment:
+      - ENVIRONMENT=development

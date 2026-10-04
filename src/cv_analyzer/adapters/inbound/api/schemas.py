@@ -35,6 +35,12 @@ class CVAnalysisResponse(BaseModel):
         ge=0,
         le=100,
     )
+    provider: str = Field(
+        description="LLM provider used to generate the analysis (e.g. 'gemini', 'openai')."
+    )
+    model: str = Field(
+        description="Model identifier used to generate the analysis (e.g. 'gemini-3.8-flash', 'gpt-4o-mini')."
+    )
 
     model_config = {
         "json_schema_extra": {
@@ -60,6 +66,8 @@ class CVAnalysisResponse(BaseModel):
                     "Needs validation on Kubernetes cluster management",
                 ],
                 "match_percentage": 88,
+                "provider": "gemini",
+                "model": "gemini-3.8-flash",
             }
         }
     }
@@ -83,6 +91,8 @@ class CVAnalysisResponse(BaseModel):
             strengths=domain.strengths,
             areas_for_improvement=domain.areas_for_improvement,
             match_percentage=domain.match_percentage,
+            provider=domain.provider or "unknown",
+            model=domain.model or "unknown",
         )
 
 

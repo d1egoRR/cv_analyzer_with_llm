@@ -16,6 +16,8 @@ def test_cv_analysis_response_from_domain_mapping() -> None:
         strengths=["Backend architecture"],
         areas_for_improvement=["Frontend frameworks"],
         match_percentage=90,
+        provider="gemini",
+        model="gemini-3.8-flash",
     )
 
     response = CVAnalysisResponse.from_domain(domain_result)
@@ -28,6 +30,25 @@ def test_cv_analysis_response_from_domain_mapping() -> None:
     assert response.strengths == domain_result.strengths
     assert response.areas_for_improvement == domain_result.areas_for_improvement
     assert response.match_percentage == domain_result.match_percentage
+    assert response.provider == "gemini"
+    assert response.model == "gemini-3.8-flash"
+
+
+def test_cv_analysis_response_from_domain_defaults_unknown() -> None:
+    """Test that empty provider/model in domain model default to 'unknown'."""
+    domain_result = CVAnalysisResult(
+        candidate_name="Alice Smith",
+        years_of_experience=4.0,
+        key_skills=["Python"],
+        education="B.S.",
+        relevant_experience="Dev",
+        strengths=["Python"],
+        areas_for_improvement=["None"],
+        match_percentage=80,
+    )
+    response = CVAnalysisResponse.from_domain(domain_result)
+    assert response.provider == "unknown"
+    assert response.model == "unknown"
 
 
 def test_error_response_instantiation() -> None:

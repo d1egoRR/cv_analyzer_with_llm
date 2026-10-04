@@ -44,6 +44,16 @@ class GeminiCVEvaluationChainAdapter(CVEvaluationChainPort):
         )
         self._timeout = timeout or settings.timeout_seconds
 
+    @property
+    def provider_name(self) -> str:
+        """Return the provider identifier."""
+        return self.PROVIDER_NAME
+
+    @property
+    def model_name(self) -> str:
+        """Return the configured model name."""
+        return self._model_name
+
     def create_chain(
         self,
         prompt_template: ChatPromptTemplate | None = None,

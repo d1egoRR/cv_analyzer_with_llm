@@ -25,6 +25,27 @@ def test_cv_analysis_result_valid_instantiation() -> None:
     assert result.strengths == ["Fast learner", "Architecture design"]
     assert result.areas_for_improvement == ["No cloud certification"]
     assert result.match_percentage == 85
+    assert result.provider == ""
+    assert result.model == ""
+
+
+def test_cv_analysis_result_with_provider_and_model() -> None:
+    """Test successful instantiation with explicit provider and model metadata."""
+    result = CVAnalysisResult(
+        candidate_name="Jane Doe",
+        years_of_experience=5.5,
+        key_skills=["Python"],
+        education="B.S.",
+        relevant_experience="Some experience",
+        strengths=["Python"],
+        areas_for_improvement=["None"],
+        match_percentage=85,
+        provider="gemini",
+        model="gemini-3.8-flash",
+    )
+
+    assert result.provider == "gemini"
+    assert result.model == "gemini-3.8-flash"
 
 
 def test_cv_analysis_result_rejects_negative_experience() -> None:

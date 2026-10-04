@@ -26,6 +26,12 @@ def isolate_test_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_MODEL_NAME", raising=False)
+    monkeypatch.delenv("OPENAI_MODEL_NAME", raising=False)
+    monkeypatch.delenv("GROQ_MODEL_NAME", raising=False)
+    monkeypatch.delenv("OPENROUTER_MODEL_NAME", raising=False)
+    monkeypatch.delenv("MISTRAL_MODEL_NAME", raising=False)
+    monkeypatch.delenv("LLM_TIMEOUT_SECONDS", raising=False)
     monkeypatch.setenv("ENABLE_GEMINI", "false")
     monkeypatch.setenv("ENABLE_OPENAI", "false")
     monkeypatch.setenv("ENABLE_GROQ", "false")
@@ -69,6 +75,8 @@ def sample_cv_result() -> CVAnalysisResult:
         strengths=["API Architecture", "Testing"],
         areas_for_improvement=["Kubernetes"],
         match_percentage=88,
+        provider="gemini",
+        model="gemini-3.8-flash",
     )
 
 

@@ -115,3 +115,15 @@ def test_create_chain_sets_max_retries_zero(mock_chat_gemini: MagicMock) -> None
         timeout=25.0,
         max_retries=0,
     )
+
+
+def test_gemini_adapter_properties() -> None:
+    """Test provider_name and model_name properties on Gemini adapter."""
+    mock_generator = MagicMock(spec=PromptGeneratorPort)
+    adapter = GeminiCVEvaluationChainAdapter(
+        prompt_generator=mock_generator,
+        api_key="gemini-test-key",
+        model_name="gemini-1.5-pro",
+    )
+    assert adapter.provider_name == "gemini"
+    assert adapter.model_name == "gemini-1.5-pro"

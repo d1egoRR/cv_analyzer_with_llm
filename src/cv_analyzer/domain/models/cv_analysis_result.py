@@ -43,3 +43,13 @@ class CVAnalysisResult(BaseModel):
         ge=0,
         le=100,
     )
+
+    provider: str = Field(
+        default="",
+        description="LLM provider name that performed the evaluation (e.g. 'gemini', 'openai')",
+    )
+
+    model: str = Field(
+        default="",
+        description="Model identifier that performed the evaluation (e.g. 'gemini-3.8-flash', 'gpt-4o-mini')",
+    )
