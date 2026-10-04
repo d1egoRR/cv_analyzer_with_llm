@@ -42,7 +42,9 @@ class OpenAICVEvaluationChainAdapter(CVEvaluationChainPort):
         self._prompt_generator = prompt_generator
         self._provider_name = provider_name
         self._model_name = model_name or settings.openai_model_name
-        self._api_key = api_key or settings.openai_api_key
+        self._api_key = (
+            settings.openai_api_key if api_key is None else api_key
+        )
         self._base_url = base_url
         self._temperature = settings.openai_temperature
         self._timeout = timeout or settings.timeout_seconds
@@ -63,7 +65,7 @@ class OpenAICVEvaluationChainAdapter(CVEvaluationChainPort):
         Raises:
             LLMProviderError: If API key is not configured.
         """
-        if not self._api_key:
+        if not self._api_key or not self._api_key.strip():
             raise LLMProviderError(
                 self._provider_name,
                 f"API key for provider '{self._provider_name}' is not configured.",

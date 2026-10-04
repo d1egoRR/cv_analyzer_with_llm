@@ -8,9 +8,14 @@ from pathlib import Path
 def _load_env_file() -> None:
     """Load .env file from the workspace root into os.environ.
 
-    Attempts to use python-dotenv if installed; otherwise falls back to a
-    minimal standard library parser to avoid hard dependency failures.
+    Skips loading if running in a test environment (e.g. under pytest).
     """
+    if (
+        "PYTEST_CURRENT_TEST" in os.environ
+        or os.getenv("TESTING", "").lower() in ("true", "1")
+    ):
+        return
+
     env_path = Path(__file__).resolve().parents[3] / ".env"
     if not env_path.exists():
         return
@@ -59,38 +64,57 @@ def _get_float(key: str, default: float) -> float:
 class LLMSettings:
     """Central configuration for LLM providers and resilience parameters."""
 
-    # Google Gemini (Primary Provider)
-    enable_gemini: bool = _get_bool("ENABLE_GEMINI", default=False)
-    gemini_api_key: str | None = os.getenv("GEMINI_API_KEY") or None
-    gemini_model_name: str = os.getenv("GEMINI_MODEL_NAME", "gemini-1.5-flash")
+    enable_gemini: bool = False
+    gemini_api_key: str | None = None
+    gemini_model_name: str = "gemini-1.5-flash"
 
-    # OpenAI (Disabled by default to protect paid credits)
-    enable_openai: bool = _get_bool("ENABLE_OPENAI", default=False)
-    openai_api_key: str | None = os.getenv("OPENAI_API_KEY") or None
-    openai_model_name: str = os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini")
-    openai_temperature: float = _get_float("OPENAI_TEMPERATURE", 0.2)
+    enable_openai: bool = False
+    openai_api_key: str | None = None
+    openai_model_name: str = "gpt-4o-mini"
+    openai_temperature: float = 0.2
 
-    # Future Providers (Prepared for subsequent fallback stages)
-    enable_groq: bool = _get_bool("ENABLE_GROQ", default=False)
-    groq_api_key: str | None = os.getenv("GROQ_API_KEY") or None
-    groq_model_name: str = os.getenv("GROQ_MODEL_NAME", "llama-3.3-70b-versatile")
+    enable_groq: bool = False
+    groq_api_key: str | None = None
+    groq_model_name: str = "llama-3.3-70b-versatile"
 
-    enable_openrouter: bool = _get_bool("ENABLE_OPENROUTER", default=False)
-    openrouter_api_key: str | None = os.getenv("OPENROUTER_API_KEY") or None
-    openrouter_model_name: str = os.getenv(
-        "OPENROUTER_MODEL_NAME", "meta-llama/llama-3.3-70b-instruct:free"
-    )
+    enable_openrouter: bool = False
+    openrouter_api_key: str | None = None
+    openrouter_model_name: str = "meta-llama/llama-3.3-70b-instruct:free"
 
-    enable_mistral: bool = _get_bool("ENABLE_MISTRAL", default=False)
-    mistral_api_key: str | None = os.getenv("MISTRAL_API_KEY") or None
-    mistral_model_name: str = os.getenv(
-        "MISTRAL_MODEL_NAME", "mistral-small-latest"
-    )
+    enable_mistral: bool = False
+    mistral_api_key: str | None = None
+    mistral_model_name: str = "mistral-small-latest"
 
-    # Resilience Settings
-    timeout_seconds: float = _get_float("LLM_TIMEOUT_SECONDS", 15.0)
+    timeout_seconds: float = 15.0
+
+    @classmethod
+    def from_env(cls) -> LLMSettings:
+        """Create an LLMSettings instance dynamically from current environment variables."""
+        return cls(
+            enable_gemini=_get_bool("ENABLE_GEMINI", default=False),
+            gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
+            gemini_model_name=os.getenv("GEMINI_MODEL_NAME", "gemini-1.5-flash"),
+            enable_openai=_get_bool("ENABLE_OPENAI", default=False),
+            openai_api_key=os.getenv("OPENAI_API_KEY") or None,
+            openai_model_name=os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini"),
+            openai_temperature=_get_float("OPENAI_TEMPERATURE", 0.2),
+            enable_groq=_get_bool("ENABLE_GROQ", default=False),
+            groq_api_key=os.getenv("GROQ_API_KEY") or None,
+            groq_model_name=os.getenv("GROQ_MODEL_NAME", "llama-3.3-70b-versatile"),
+            enable_openrouter=_get_bool("ENABLE_OPENROUTER", default=False),
+            openrouter_api_key=os.getenv("OPENROUTER_API_KEY") or None,
+            openrouter_model_name=os.getenv(
+                "OPENROUTER_MODEL_NAME", "meta-llama/llama-3.3-70b-instruct:free"
+            ),
+            enable_mistral=_get_bool("ENABLE_MISTRAL", default=False),
+            mistral_api_key=os.getenv("MISTRAL_API_KEY") or None,
+            mistral_model_name=os.getenv(
+                "MISTRAL_MODEL_NAME", "mistral-small-latest"
+            ),
+            timeout_seconds=_get_float("LLM_TIMEOUT_SECONDS", 15.0),
+        )
 
 
 def get_llm_settings() -> LLMSettings:
-    """Return the global LLMSettings instance."""
-    return LLMSettings()
+    """Return the current LLMSettings instance dynamically from environment."""
+    return LLMSettings.from_env()

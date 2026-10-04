@@ -18,6 +18,21 @@ from cv_analyzer.domain.models.cv_analysis_result import CVAnalysisResult
 from cv_analyzer.main import app
 
 
+@pytest.fixture(autouse=True)
+def isolate_test_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Ensure all tests run in an isolated environment without real .env credentials."""
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
+    monkeypatch.setenv("ENABLE_GEMINI", "false")
+    monkeypatch.setenv("ENABLE_OPENAI", "false")
+    monkeypatch.setenv("ENABLE_GROQ", "false")
+    monkeypatch.setenv("ENABLE_OPENROUTER", "false")
+    monkeypatch.setenv("ENABLE_MISTRAL", "false")
+
+
 @pytest.fixture
 def client() -> Generator[TestClient, None, None]:
     """TestClient fixture that guarantees dependency overrides are cleared after each test."""
