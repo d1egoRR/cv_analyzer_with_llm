@@ -82,7 +82,9 @@ FastAPI application built with Python using Hexagonal Architecture (Ports and Ad
       "relevant_experience": "5 years designing scalable backend APIs...",
       "strengths": ["Deep FastAPI expertise", "Clean hexagonal architecture design"],
       "areas_for_improvement": ["Needs validation on Kubernetes cluster management"],
-      "match_percentage": 88
+      "match_percentage": 88,
+      "provider": "gemini",
+      "model": "gemini-3.8-flash"
     }
     ```
 

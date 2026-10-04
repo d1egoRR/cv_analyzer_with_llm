@@ -104,3 +104,16 @@ def test_create_chain_configures_max_retries_zero_and_base_url(
     _, kwargs = mock_chat_openai.call_args
     assert kwargs["max_retries"] == 0
     assert kwargs["base_url"] == "https://api.groq.com/openai/v1"
+
+
+def test_openai_adapter_properties() -> None:
+    """Test provider_name and model_name properties on OpenAI adapter."""
+    mock_generator = MagicMock(spec=PromptGeneratorPort)
+    adapter = OpenAICVEvaluationChainAdapter(
+        prompt_generator=mock_generator,
+        api_key="sk-test-key",
+        model_name="gpt-4o",
+        provider_name="openai",
+    )
+    assert adapter.provider_name == "openai"
+    assert adapter.model_name == "gpt-4o"

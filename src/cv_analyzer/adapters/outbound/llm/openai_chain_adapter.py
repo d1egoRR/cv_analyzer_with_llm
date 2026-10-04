@@ -49,6 +49,16 @@ class OpenAICVEvaluationChainAdapter(CVEvaluationChainPort):
         self._temperature = settings.openai_temperature
         self._timeout = timeout or settings.timeout_seconds
 
+    @property
+    def provider_name(self) -> str:
+        """Return the provider identifier."""
+        return self._provider_name
+
+    @property
+    def model_name(self) -> str:
+        """Return the configured model name."""
+        return self._model_name
+
     def create_chain(
         self,
         prompt_template: ChatPromptTemplate | None = None,

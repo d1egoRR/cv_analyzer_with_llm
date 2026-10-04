@@ -64,6 +64,11 @@ class _FallbackChainRunner:
                     input_data,
                     config=config,
                 )
+
+                # Enrich result with provider and model information
+                result.provider = adapter.provider_name
+                result.model = adapter.model_name
+
                 logger.info(
                     f"CV evaluation succeeded using provider '{provider_id}'"
                 )
@@ -84,6 +89,9 @@ class _FallbackChainRunner:
 
 class FallbackCVEvaluationChainAdapter(CVEvaluationChainPort):
     """Composite outbound adapter managing stateless multi-provider fallback."""
+
+    provider_name: str = "fallback"
+    model_name: str = "composite"
 
     def __init__(
         self,
