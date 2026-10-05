@@ -36,7 +36,7 @@ def test_generate_cv_analysis_prompt_default_content_formatting() -> None:
     assert len(messages) == 2
     system_msg, human_msg = messages[0], messages[1]
 
-    assert "Eres un evaluador senior de talento tecnológico" in system_msg.content
+    assert "Eres un evaluador técnico exigente y riguroso" in system_msg.content
     assert job_desc in human_msg.content
     assert cv_text in human_msg.content
 

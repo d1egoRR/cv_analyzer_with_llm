@@ -9,6 +9,9 @@ from cv_analyzer.adapters.outbound.llm.gemini_chain_adapter import (
 from cv_analyzer.adapters.outbound.llm.openai_chain_adapter import (
     OpenAICVEvaluationChainAdapter,
 )
+from cv_analyzer.adapters.outbound.llm.ollama_chain_adapter import (
+    OllamaCVEvaluationChainAdapter,
+)
 from cv_analyzer.adapters.outbound.pdf.pypdf_extractor import PyPDFExtractor
 from cv_analyzer.adapters.outbound.prompts.langchain_prompt_adapter import (
     LangChainPromptAdapter,
@@ -88,3 +91,24 @@ def get_cv_evaluator_service() -> CVEvaluatorService:
 
     fallback_adapter = FallbackCVEvaluationChainAdapter(providers=providers)
     return CVEvaluatorService(chain_provider=fallback_adapter)
+
+
+@lru_cache
+def get_local_cv_evaluator_service() -> CVEvaluatorService:
+    """Provide a configured CVEvaluatorService wired exclusively to Ollama local LLM.
+
+    Returns:
+        Configured CVEvaluatorService instance.
+    """
+    settings = get_llm_settings()
+    prompt_generator = LangChainPromptAdapter()
+    ollama_adapter = OllamaCVEvaluationChainAdapter(
+        prompt_generator=prompt_generator,
+        model_name=settings.ollama_model_name,
+        base_url=settings.ollama_base_url,
+        keep_alive=settings.ollama_keep_alive,
+        num_predict=settings.ollama_num_predict,
+        num_ctx=settings.ollama_num_ctx,
+        timeout=settings.ollama_timeout_seconds,
+    )
+    return CVEvaluatorService(chain_provider=ollama_adapter)
