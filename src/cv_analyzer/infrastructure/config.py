@@ -60,6 +60,17 @@ def _get_float(key: str, default: float) -> float:
         return default
 
 
+def _get_int(key: str, default: int) -> int:
+    """Helper to parse integer values from environment variables."""
+    val = os.getenv(key)
+    if val is None:
+        return default
+    try:
+        return int(val.strip())
+    except ValueError:
+        return default
+
+
 @dataclass(frozen=True)
 class LLMSettings:
     """Central configuration for LLM providers and resilience parameters."""
@@ -84,6 +95,14 @@ class LLMSettings:
     enable_mistral: bool = False
     mistral_api_key: str | None = None
     mistral_model_name: str = "mistral-small-latest"
+
+    enable_ollama: bool = False
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model_name: str = "qwen2.5:3b"
+    ollama_keep_alive: str = "-1"
+    ollama_timeout_seconds: float = 300.0
+    ollama_num_predict: int = 900
+    ollama_num_ctx: int = 4096
 
     timeout_seconds: float = 15.0
 
@@ -111,6 +130,17 @@ class LLMSettings:
             mistral_model_name=os.getenv(
                 "MISTRAL_MODEL_NAME", "mistral-small-latest"
             ),
+            enable_ollama=_get_bool("ENABLE_OLLAMA", default=False),
+            ollama_base_url=os.getenv(
+                "OLLAMA_BASE_URL", "http://localhost:11434"
+            ),
+            ollama_model_name=os.getenv("OLLAMA_MODEL_NAME", "qwen2.5:3b"),
+            ollama_keep_alive=os.getenv("OLLAMA_KEEP_ALIVE", "-1"),
+            ollama_timeout_seconds=_get_float(
+                "OLLAMA_TIMEOUT_SECONDS", 300.0
+            ),
+            ollama_num_predict=_get_int("OLLAMA_NUM_PREDICT", 900),
+            ollama_num_ctx=_get_int("OLLAMA_NUM_CTX", 4096),
             timeout_seconds=_get_float("LLM_TIMEOUT_SECONDS", 15.0),
         )
 

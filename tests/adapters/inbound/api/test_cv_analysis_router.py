@@ -122,3 +122,41 @@ def test_analyze_cv_handles_cv_evaluation_error(
 
     assert response.status_code == 502
     assert "CV evaluation failed" in response.json()["detail"]
+
+
+def test_analyze_cv_local_success(
+    client: TestClient,
+    mock_services: dict[str, MagicMock],
+    sample_cv_result: CVAnalysisResult,
+) -> None:
+    """Test successful CV analysis workflow on /cv/analyze/local endpoint."""
+    pdf_bytes = b"%PDF-1.4 mock pdf binary content"
+    files = {"cv_file": ("test_cv.pdf", BytesIO(pdf_bytes), "application/pdf")}
+    data = {
+        "job_description": "Looking for a Senior Python Developer with FastAPI experience."
+    }
+
+    response = client.post("/cv/analyze/local", data=data, files=files)
+
+    assert response.status_code == 200
+    json_data = response.json()
+    assert json_data["candidate_name"] == sample_cv_result.candidate_name
+    assert json_data["years_of_experience"] == sample_cv_result.years_of_experience
+    assert json_data["key_skills"] == sample_cv_result.key_skills
+    assert json_data["match_percentage"] == sample_cv_result.match_percentage
+
+    mock_services["pdf_service"].extract_text_from_stream.assert_called_once()
+    mock_services["prompt_service"].create_cv_analysis_prompt.assert_called_once()
+    mock_services["evaluator_service"].evaluate.assert_called_once()
+
+
+def test_analyze_cv_local_rejects_empty_job_description(client: TestClient) -> None:
+    """Test that empty job description on /cv/analyze/local returns 400 Bad Request."""
+    pdf_bytes = b"%PDF-1.4 mock pdf content"
+    files = {"cv_file": ("test_cv.pdf", BytesIO(pdf_bytes), "application/pdf")}
+    data = {"job_description": "          "}
+
+    response = client.post("/cv/analyze/local", data=data, files=files)
+
+    assert response.status_code == 400
+    assert "Job description text cannot be empty" in response.json()["detail"]

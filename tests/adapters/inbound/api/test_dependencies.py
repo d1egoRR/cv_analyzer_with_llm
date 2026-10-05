@@ -2,11 +2,15 @@ from unittest.mock import patch
 
 from cv_analyzer.adapters.inbound.api.dependencies import (
     get_cv_evaluator_service,
+    get_local_cv_evaluator_service,
     get_pdf_service,
     get_prompt_service,
 )
 from cv_analyzer.adapters.outbound.llm.fallback_chain_adapter import (
     FallbackCVEvaluationChainAdapter,
+)
+from cv_analyzer.adapters.outbound.llm.ollama_chain_adapter import (
+    OllamaCVEvaluationChainAdapter,
 )
 from cv_analyzer.application.services.cv_evaluator_service import (
     CVEvaluatorService,
@@ -52,3 +56,29 @@ def test_get_cv_evaluator_service_wires_fallback_adapter() -> None:
         assert "openai" not in provider_names
 
     get_cv_evaluator_service.cache_clear()
+
+
+def test_get_local_cv_evaluator_service_wires_ollama_adapter() -> None:
+    """Test get_local_cv_evaluator_service instantiates OllamaCVEvaluationChainAdapter exclusively."""
+    mock_settings = LLMSettings(
+        enable_ollama=True,
+        ollama_base_url="http://localhost:11434",
+        ollama_model_name="qwen2.5:3b",
+        ollama_keep_alive="-1",
+    )
+
+    get_local_cv_evaluator_service.cache_clear()
+
+    with patch(
+        "cv_analyzer.adapters.inbound.api.dependencies.get_llm_settings",
+        return_value=mock_settings,
+    ):
+        service = get_local_cv_evaluator_service()
+
+        assert isinstance(service, CVEvaluatorService)
+        chain_provider = service._chain_provider
+        assert isinstance(chain_provider, OllamaCVEvaluationChainAdapter)
+        assert chain_provider.provider_name == "ollama"
+        assert chain_provider.model_name == "qwen2.5:3b"
+
+    get_local_cv_evaluator_service.cache_clear()

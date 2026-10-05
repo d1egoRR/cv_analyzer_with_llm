@@ -45,4 +45,23 @@ def test_llm_settings_models_and_flags() -> None:
     assert isinstance(settings, LLMSettings)
     assert settings.gemini_model_name == "gemini-1.5-flash"
     assert settings.openai_model_name == "gpt-4o-mini"
+    assert settings.ollama_model_name == "qwen2.5:3b"
+    assert settings.ollama_keep_alive == "-1"
     assert settings.timeout_seconds == 15.0
+
+
+def test_llm_settings_ollama_custom_env() -> None:
+    """Test LLMSettings parses custom Ollama environment variables."""
+    custom_env = {
+        "ENABLE_OLLAMA": "true",
+        "OLLAMA_BASE_URL": "http://ollama-custom:11434",
+        "OLLAMA_MODEL_NAME": "qwen2.5:7b",
+        "OLLAMA_KEEP_ALIVE": "24h",
+    }
+    with patch.dict(os.environ, custom_env):
+        settings = get_llm_settings()
+        assert settings.enable_ollama is True
+        assert settings.ollama_base_url == "http://ollama-custom:11434"
+        assert settings.ollama_model_name == "qwen2.5:7b"
+        assert settings.ollama_keep_alive == "24h"
+

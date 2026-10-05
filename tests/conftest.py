@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 from cv_analyzer.adapters.inbound.api.dependencies import (
     get_cv_evaluator_service,
+    get_local_cv_evaluator_service,
     get_pdf_service,
     get_prompt_service,
 )
@@ -31,12 +32,16 @@ def isolate_test_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("GROQ_MODEL_NAME", raising=False)
     monkeypatch.delenv("OPENROUTER_MODEL_NAME", raising=False)
     monkeypatch.delenv("MISTRAL_MODEL_NAME", raising=False)
+    monkeypatch.delenv("OLLAMA_BASE_URL", raising=False)
+    monkeypatch.delenv("OLLAMA_MODEL_NAME", raising=False)
+    monkeypatch.delenv("OLLAMA_KEEP_ALIVE", raising=False)
     monkeypatch.delenv("LLM_TIMEOUT_SECONDS", raising=False)
     monkeypatch.setenv("ENABLE_GEMINI", "false")
     monkeypatch.setenv("ENABLE_OPENAI", "false")
     monkeypatch.setenv("ENABLE_GROQ", "false")
     monkeypatch.setenv("ENABLE_OPENROUTER", "false")
     monkeypatch.setenv("ENABLE_MISTRAL", "false")
+    monkeypatch.setenv("ENABLE_OLLAMA", "false")
 
 
 @pytest.fixture
@@ -103,6 +108,9 @@ def mock_services(
     app.dependency_overrides[get_pdf_service] = lambda: mock_pdf_service
     app.dependency_overrides[get_prompt_service] = lambda: mock_prompt_service
     app.dependency_overrides[get_cv_evaluator_service] = (
+        lambda: mock_evaluator_service
+    )
+    app.dependency_overrides[get_local_cv_evaluator_service] = (
         lambda: mock_evaluator_service
     )
 
