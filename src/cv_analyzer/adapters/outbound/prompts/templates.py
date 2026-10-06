@@ -42,6 +42,7 @@ GUÍA DE CAMPOS:
 - experiencia_relevante: Resumen (máximo 3 líneas) de experiencia directamente aplicable al puesto. Si no aplica, indicar "Sin experiencia previa aplicable a este puesto".
 - fortalezas: 2 a 4 fortalezas que aporten a esta vacante específica (1 línea por punto).
 - areas_mejora: Enumera las tecnologías indispensables exigidas en la vacante que faltan en el CV (1 línea por punto).
-- porcentaje_ajuste_puesto: Entero (0 a 100) aplicando con severidad la escala de contraste anterior."""
+- porcentaje_ajuste_puesto: Entero (0 a 100) aplicando con severidad la escala de contraste anterior.
+- match_justification: Justificación concisa de máximo 100 caracteres del porqué se asignó ese porcentaje de ajuste al candidato."""
 
 

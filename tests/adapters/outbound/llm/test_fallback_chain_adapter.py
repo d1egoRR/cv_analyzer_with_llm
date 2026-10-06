@@ -25,6 +25,7 @@ def _create_sample_result(provider: str = "", model: str = "") -> CVAnalysisResu
         strengths=["FastAPI", "Clean Code"],
         areas_for_improvement=["Cloud infrastructure"],
         match_percentage=85,
+        match_justification="Candidate matches backend requirements.",
         provider=provider,
         model=model,
     )

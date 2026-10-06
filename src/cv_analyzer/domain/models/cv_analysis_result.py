@@ -44,6 +44,11 @@ class CVAnalysisResult(BaseModel):
         le=100,
     )
 
+    match_justification: str = Field(
+        description="Concise justification (maximum 100 characters) explaining why this match percentage was assigned to the candidate.",
+        max_length=100,
+    )
+
     provider: str = Field(
         default="",
         description="LLM provider name that performed the evaluation (e.g. 'gemini', 'openai')",

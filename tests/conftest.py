@@ -80,6 +80,7 @@ def sample_cv_result() -> CVAnalysisResult:
         strengths=["API Architecture", "Testing"],
         areas_for_improvement=["Kubernetes"],
         match_percentage=88,
+        match_justification="Strong Python and FastAPI background; gaps in cloud deployment.",
         provider="gemini",
         model="gemini-3.8-flash",
     )

@@ -31,6 +31,7 @@ def test_analyze_cv_success(
     assert json_data["years_of_experience"] == sample_cv_result.years_of_experience
     assert json_data["key_skills"] == sample_cv_result.key_skills
     assert json_data["match_percentage"] == sample_cv_result.match_percentage
+    assert json_data["match_justification"] == sample_cv_result.match_justification
     assert json_data["provider"] == sample_cv_result.provider
     assert json_data["model"] == sample_cv_result.model
 
@@ -144,6 +145,7 @@ def test_analyze_cv_local_success(
     assert json_data["years_of_experience"] == sample_cv_result.years_of_experience
     assert json_data["key_skills"] == sample_cv_result.key_skills
     assert json_data["match_percentage"] == sample_cv_result.match_percentage
+    assert json_data["match_justification"] == sample_cv_result.match_justification
 
     mock_services["pdf_service"].extract_text_from_stream.assert_called_once()
     mock_services["prompt_service"].create_cv_analysis_prompt.assert_called_once()
