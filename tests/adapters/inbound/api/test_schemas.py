@@ -16,6 +16,7 @@ def test_cv_analysis_response_from_domain_mapping() -> None:
         strengths=["Backend architecture"],
         areas_for_improvement=["Frontend frameworks"],
         match_percentage=90,
+        match_justification="Strong technical match with required backend stack.",
         provider="gemini",
         model="gemini-3.8-flash",
     )
@@ -30,6 +31,7 @@ def test_cv_analysis_response_from_domain_mapping() -> None:
     assert response.strengths == domain_result.strengths
     assert response.areas_for_improvement == domain_result.areas_for_improvement
     assert response.match_percentage == domain_result.match_percentage
+    assert response.match_justification == domain_result.match_justification
     assert response.provider == "gemini"
     assert response.model == "gemini-3.8-flash"
 
@@ -45,8 +47,10 @@ def test_cv_analysis_response_from_domain_defaults_unknown() -> None:
         strengths=["Python"],
         areas_for_improvement=["None"],
         match_percentage=80,
+        match_justification="Solid candidate fit.",
     )
     response = CVAnalysisResponse.from_domain(domain_result)
+    assert response.match_justification == "Solid candidate fit."
     assert response.provider == "unknown"
     assert response.model == "unknown"
 

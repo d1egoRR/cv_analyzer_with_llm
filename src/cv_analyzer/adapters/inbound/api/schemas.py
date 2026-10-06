@@ -35,6 +35,10 @@ class CVAnalysisResponse(BaseModel):
         ge=0,
         le=100,
     )
+    match_justification: str = Field(
+        description="Brief justification (maximum 100 characters) for the assigned match percentage.",
+        max_length=100,
+    )
     provider: str = Field(
         description="LLM provider used to generate the analysis (e.g. 'gemini', 'openai')."
     )
@@ -66,6 +70,7 @@ class CVAnalysisResponse(BaseModel):
                     "Needs validation on Kubernetes cluster management",
                 ],
                 "match_percentage": 88,
+                "match_justification": "Matches core FastAPI & Python requirements; lacks explicit Kubernetes experience.",
                 "provider": "gemini",
                 "model": "gemini-3.8-flash",
             }
@@ -91,6 +96,7 @@ class CVAnalysisResponse(BaseModel):
             strengths=domain.strengths,
             areas_for_improvement=domain.areas_for_improvement,
             match_percentage=domain.match_percentage,
+            match_justification=domain.match_justification,
             provider=domain.provider or "unknown",
             model=domain.model or "unknown",
         )
